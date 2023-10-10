@@ -1,10 +1,10 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useDispatch } from "react-redux";
 import Delivery from "@components/checkout/Delivery";
 import Payment from "@components/checkout/Payment";
-import Loader from "@components/Loader";
+// import Loader from "@components/Loader";
 
 
 function CheckOut() {
@@ -39,7 +39,7 @@ function CheckOut() {
         style={{ paddingTop: "190px" }}
       >
         <div className="container">
-          {isLoaded ? <Loader /> : ""}
+          {/* {isLoaded ? <Loader /> : ""} */}
           <div className="row">
             <div className="col-md-8">
               <div className="checkout-step">
