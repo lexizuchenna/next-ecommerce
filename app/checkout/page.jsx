@@ -4,8 +4,6 @@ import React, { useState, useEffect } from "react";
 import { useDispatch } from "react-redux";
 import Delivery from "@components/checkout/Delivery";
 import Payment from "@components/checkout/Payment";
-import Complete from "@components/checkout/Complete";
-import Success from "@components/checkout/Success";
 import Loader from "@components/Loader";
 
 
@@ -18,20 +16,6 @@ function CheckOut() {
   const [deliveryAddress, setDeliveryAddress] = useState("");
 
   const cartItems = [];
-
-  const loadScript = (src) => {
-    return new Promise((resolve) => {
-      const script = document.createElement("script");
-      script.src = src;
-      script.onload = () => {
-        resolve(true);
-      };
-      script.onerror = () => {
-        resolve(false);
-      };
-      document.body.appendChild(script);
-    });
-  };
 
   useEffect(() => {
     const fetchData = async () => {

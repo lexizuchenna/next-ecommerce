@@ -40,8 +40,6 @@ function Delivery() {
         const location = ""
         if (location) {
           setLocationList(location.data);
-        } else {
-          NotificationManager.error("Data is empty", "Data");
         }
       } catch (error) {
         console.error("Error fetching location details:", error);
