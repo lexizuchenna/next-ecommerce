@@ -2,14 +2,15 @@
 
 import { useState, useEffect } from "react";
 import { Button } from "@mui/material";
+import { usePathname } from "next/navigation";
 
 function FilterByCategory() {
   const [list, setList] = useState([]);
   const [toggle, setToggle] = useState("");
-
+  const pathname = usePathname()
   useEffect(() => {
     const fetchData = async () => {
-      let url = window.location.href.split("/");
+      let url = pathname.split("/");
       var lastSegment = url.pop() || url.pop();
       try {
         let category = await GetCategoryDetails.getAllCategoryList(lastSegment);

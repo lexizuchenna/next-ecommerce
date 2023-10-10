@@ -2,11 +2,13 @@
 
 import {useState, useEffect} from "react";
 import { Paper } from "@mui/material";
+import { usePathname } from "next/navigation";
 import parse from "html-react-parser";
 // import Slider from "react-slick";
 
 function SingleProduct({addToCart}) {
     const [product, setProduct] = useState(null);
+      const pathname = usePathname()
 
   const settings = {
     customPaging: function (i) {
@@ -29,7 +31,7 @@ function SingleProduct({addToCart}) {
   useEffect(() => {
     const fetchProductDetails = async () => {
       window.scrollTo(0, 0);
-      let url = window.location.href.split("/");
+      let url = pathname.split("/");
       var lastSegment = url.pop() || url.pop();
     //   let list = await GetProductDetails.getProductById(lastSegment);
     //   setProduct(list.data);

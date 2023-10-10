@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { usePathname } from "next/navigation";
 import { CircularProgress } from "@mui/material";
 
 function page() {
@@ -10,8 +11,9 @@ function page() {
   const [categorybyproduct, setcategorybyproduct] = useState([]);
   const [limit, setLimit] = useState(3);
   const onLoadMore = () => {};
+  const pathname = usePathname()
   const handleFilterCategory = async () => {
-    let url = window.location.href.split("/");
+    let url = pathname.split("/");
     var lastSegment = url.pop() || url.pop();
 
     let data = { id: row.id, name: lastSegment };
@@ -26,7 +28,7 @@ function page() {
   };
   const getFilterByProduct = async () => {
     setIsloaded(false);
-    let url = window.location.href.split("/");
+    let url = pathname.split("/");
     var lastSegment = url.pop() || url.pop();
     try {
       let p = () => lastSegment;
