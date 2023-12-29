@@ -36,7 +36,7 @@ function RootLayout({ children }) {
                 <div className="col-lg-12">
                   <div className="user-dt">
                     <div className="user-img">
-                      <img src="/img/avatar/img-5.jpg" alt />
+                      <img src="/img/avatar/img-5.jpg" />
                       <div className="img-add">
                         <input type="file" id="file" />
                         <label htmlFor="file">
@@ -52,7 +52,7 @@ function RootLayout({ children }) {
                       </Link>
                     </p>
                     <div className="earn-points">
-                      <img src="/img/Dollar.svg" alt />
+                      <img src="/img/Dollar.svg" />
                       Points : <span>20</span>
                     </div>
                   </div>
@@ -60,7 +60,7 @@ function RootLayout({ children }) {
               </div>
             </div>
           </div>
-          <div className>
+          <div>
             <div className="container">
               <div className="row">
                 <div className="col-lg-3 col-md-4">

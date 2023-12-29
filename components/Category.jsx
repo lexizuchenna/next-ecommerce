@@ -1,6 +1,6 @@
-// import Slider from "react-slick";
-// import "slick-carousel/slick/slick.css";
-// import "slick-carousel/slick/slick-theme.css";
+"use client"
+
+import Slider from "react-slick";
 import Link from "next/link";
 
 function Category() {
@@ -40,9 +40,9 @@ function Category() {
   };
 
   return (
-    <div style={{ background: "#fff" }}>
+    <div style={{ background: "#fff", paddingTop: "10px" }}>
       <div className="container" id="header-category-bk">
-        {/* <Slider {...settings}>
+        <Slider {...settings}>
           <div className="item">
             <div className="category-item">
               <Link href="/shop/grocery-staples">
@@ -163,7 +163,7 @@ function Category() {
               </Link>
             </div>
           </div>
-        </Slider> */}
+        </Slider>
       </div>
     </div>
   );

@@ -1,21 +1,26 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useSelector, useDispatch } from "react-redux";
+import { useJwt } from "react-jwt";
 import Image from "next/image";
 import Link from "next/link";
 
+import { logoutUser } from "@app/redux/features/user/slice";
+
+import Loader from "./Loader";
 import CartSidebar from "./CartSidebar";
-import Login from "./Auth";
+import Auth from "./Auth";
 
 function Header() {
-  const [state, setState] = useState({
-    token: "",
-    userName: "",
-    searchtxt: "",
-  });
+  const dispatch = useDispatch();
+  const { user, userMessage } = useSelector((state) => state.user);
+  const [searchtxt, setSearchtxt] = useState("");
+  const [isClient, setIsClient] = useState(false);
+  const { isExpired } = useJwt(user?.token || "");
 
   const handleChange = (e) => {
-    setState({ ...state, [e.target.name]: e.target.value });
+    setSearchtxt(e.target.value);
   };
 
   const handleLogout = async (event) => {
@@ -29,25 +34,24 @@ function Header() {
     props.history.push(`/product/catalogsearch/result/${searchtxt}`);
   };
 
-  useEffect(() => {
-    // const fetchData = async () => {
-    //   let cookies = await GetUserLogin.isAuthenticate();
-    //   setState({ ...state, token: cookies });
-    //   let email = sessionStorage.getItem("email");
-    //   if (email) {
-    //     let user = await GetUserLogin.getCustomerDetail(email);
-    //     if (user) {
-    //       setState({ ...state, userName: user.data.firstName });
-    //     }
-    //   }
-    // };
-    // fetchData();
-  }, [state]);
+  const toggleMenu = () => {
+    document.querySelector(".dropdown-menu").classList.toggle("show")
+  }
 
-  const { token, userName, searchtxt } = state;
+  useEffect(() => {
+    setIsClient(true)
+    console.log(isExpired)
+    if (isExpired) {
+      return dispatch(logoutUser());
+    }
+    // console.log(user);
+  }, []);
+  
+
 
   return (
-    <div>
+    <div >
+      {!isClient && <Loader />}
       <header className="header clearfix">
         <div className="navbar-top bg-success pt-2 pb-2">
           <div className="container-fluid">
@@ -68,7 +72,7 @@ function Header() {
         <nav className="navbar navbar-light navbar-expand-lg bg-dark bg-faded osahan-menu">
           <div className="container-fluid">
             <Link className="navbar-brand" href="/">
-              <Image src="/img/logo.svg" width={80} height={80}  />
+              <Image src="/img/logo.svg" width={80} height={80} alt="logo" />
             </Link>
             <div className="navbar-collapse" id="navbarNavDropdown">
               <div className="navbar-nav mr-auto mt-2 mt-lg-0 margin-auto top-categories-search-main">
@@ -101,7 +105,7 @@ function Header() {
               <div className="my-2 my-lg-0">
                 <ul className="list-inline main-nav-right">
                   <li className="list-inline-item">
-                    {token ? (
+                    {isClient && user?.token ? (
                       <div className="dropdown">
                         <button
                           className="btn btn-account"
@@ -110,8 +114,9 @@ function Header() {
                           data-toggle="dropdown"
                           aria-haspopup="true"
                           aria-expanded="false"
+                          onClick={toggleMenu}
                         >
-                          {userName} &nbsp;
+                          {user?.username} &nbsp;
                           <i className="mdi mdi-arrow-up-drop-circle mdi-flip-v mdi-18px" />
                         </button>
 
@@ -125,6 +130,7 @@ function Header() {
                           <Link
                             className="dropdown-item"
                             href="/account/profile"
+                            onClick={toggleMenu}
                           >
                             <i
                               className="mdi mdi-account-outline"
@@ -153,7 +159,7 @@ function Header() {
                             />
                             Orders List
                           </Link>
-                          <div className="dropdown-divider" />
+                          <div className="dropdown-divider"></div>
                           <span
                             className="dropdown-item"
                             onClick={handleLogout}
@@ -182,7 +188,7 @@ function Header() {
           </div>
         </nav>
       </header>
-      <Login />
+      <Auth />
     </div>
   );
 }

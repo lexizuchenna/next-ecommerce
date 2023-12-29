@@ -1,65 +1,170 @@
 "use client";
 
 import { useState, useEffect } from "react";
-// import { GetUserLogin } from "../../components/services";
-// import { NotificationManager } from "react-notifications";
+import { useSnackbar } from "notistack";
+import { useRouter } from "next/navigation";
+import { useDispatch } from "react-redux";
+import axios from "axios";
+
+
+// import snackbar from "@utils/snackbar";
+import { loginUser } from "@app/redux/features/user/slice";
 
 const emailRegex = RegExp(
   /^[a-zA-Z0-9.!#$%&’*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zAZ0-9-]+)*$/
 );
 
-const formValid = ({ formErrors, ...rest }) => {
-  let valid = true;
+const BASEURL = axios.create({ baseURL: `/api/` });
 
-  // validate form errors being empty
-  Object.values(formErrors).forEach((val) => {
-    val.length > 0 && (valid = false);
-  });
-
-  // validate the form was filled out
-  Object.values(rest).forEach((val) => {
-    val === null && (valid = false);
-  });
-
-  return valid;
-};
+// const config = {
+//   headers: {
+//     Authorization: `Bearer ${token}`,
+//   },
+// };
 
 export default function Login() {
+  const { enqueueSnackbar } = useSnackbar();
+
+  const dispatch = useDispatch()
+  
+  const [agree, setAgree] = useState(false);
+  const [remember, setRemember] = useState(false);
+  const [agreeError, setAgreeError] = useState(false);
   const [formData, setFormData] = useState({
-    firstName: "",
-    email: "",
+    firstname: "",
+    lastname: "",
+    email: typeof window !== "undefined"
+    ? window.localStorage.getItem("email")
+    : "",
+    phone: "",
     password: "",
+    confirm_password: "",
   });
-  const [password, setPassword] = useState("");
   const [switchAuth, setSwitchAuth] = useState("login");
   const [formErrors, setFormErrors] = useState({
+    firstname: "",
+    lastname: "",
     email: "",
+    phone: "",
     password: "",
-    firstName: "",
+    confirm_password: "",
   });
 
   useEffect(() => {
     document.getElementById("login-form").reset();
   }, []);
 
+  const changeAuth = () => {
+    if (switchAuth === "register") {
+      const email =
+        typeof window !== "undefined"
+          ? window.localStorage.getItem("email")
+          : "";
+      setSwitchAuth("login");
+      setFormData((prev) => ({ ...prev, email: email ? email : "" }));
+    }
+    if (switchAuth === "login") {
+      setSwitchAuth("register");
+      setFormData((prev) => ({ ...prev, email: "" }));
+    }
+  };
+
+  const validate = () => {
+    if (switchAuth === "register") {
+      let errors = [];
+
+      for (let key in formData) {
+        let value = formData[key];
+
+        if (value === "") {
+          setFormErrors((prev) => ({
+            ...prev,
+            [key]: "Cannot be blank",
+          }));
+        }
+      }
+
+      Object.keys(formData).map((key, i) => {
+        let error = formErrors[key];
+        if (error !== "") errors.push(i);
+      });
+
+      if (errors.length > 0) return true;
+      else return false;
+    }
+    if (switchAuth === "login") {
+      let errors = [];
+      if (formData.email === "") {
+        setFormErrors((prev) => ({
+          ...prev,
+          email: "Cannot be blank",
+        }));
+        errors.push(0);
+      }
+      if (formData.password === "") {
+        setFormErrors((prev) => ({
+          ...prev,
+          password: "Cannot be blank",
+        }));
+        errors.push(1);
+      }
+
+      if (errors.length > 0) return true;
+      else return false;
+    }
+  };
+
   const handleChange = (e) => {
     e.preventDefault();
-    const { name, value } = e.target;
+    const value = e.target.value;
+    const name = e.target.name;
+
+    setFormData((prev) => ({ ...prev, [name]: value }));
 
     switch (name) {
+      case "firstname":
+        setFormErrors((prev) => ({
+          ...prev,
+          [name]:
+            switchAuth === "register" && value === "" ? "Enter First Name" : "",
+        }));
+        break;
+      case "lastname":
+        setFormErrors((prev) => ({
+          ...prev,
+          [name]:
+            switchAuth === "register" && value === "" ? "Enter Last Name" : "",
+        }));
+        break;
       case "email":
-        setFormErrors({
-          ...formErrors,
-          email: emailRegex.test(value) ? "" : "Invalid email address",
-        });
-        setEmail(value);
+        setFormErrors((prev) => ({
+          ...prev,
+          [name]: emailRegex.test(value) ? "" : "Invalid email address",
+        }));
+        break;
+      case "phone":
+        setFormErrors((prev) => ({
+          ...prev,
+          [name]:
+            switchAuth === "register" && value.length < 11
+              ? "Invalid phone number"
+              : "",
+        }));
         break;
       case "password":
-        setFormErrors({
-          ...formErrors,
-          password: value.length < 6 ? "Minimum 6 characters required" : "",
-        });
-        setPassword(value);
+        setFormErrors((prev) => ({
+          ...prev,
+          [name]:
+            switchAuth === "register" && value.length < 6
+              ? "Password must be up to 6"
+              : "",
+        }));
+        break;
+      case "confirm_password":
+        setFormErrors((prev) => ({
+          ...prev,
+          [name]: value !== formData.password ? "Password doesn't match" : "",
+        }));
         break;
       default:
         break;
@@ -68,22 +173,45 @@ export default function Login() {
 
   const handleSubmit = async (event) => {
     event.preventDefault();
-    const data = { email, password };
 
-    // if (formValid({ formErrors, email, password })) {
-    //   let user = await GetUserLogin.getUserLogin(data);
-    //   if (user) {
-    //     NotificationManager.success("Login successful", "Login");
-    //     await GetUserLogin.authenticate(user.token, email);
-    //   } else {
-    //     NotificationManager.error(
-    //       "Please check your email and password",
-    //       "Input Error"
-    //     );
-    //   }
-    // } else {
-    //   NotificationManager.error("Please check your login", "Input Error");
-    // }
+    if (switchAuth === "register") {
+      const isError = validate();
+      if (isError) return;
+
+      if (agree === false) {
+        setAgreeError(true);
+        return;
+      } else setAgreeError(false);
+
+      try {
+        const { data } = await BASEURL.post("auth/create-account", formData);
+
+        if (data === "Account created successfully") {
+          setFormData((prev) => ({
+            ...prev,
+            password: "",
+            confirm_password: "",
+            phone: "",
+            firstname: "",
+            lastname: "",
+          }));
+          setSwitchAuth("login");
+        }
+      } catch (error) {
+        console.log(error);
+      }
+    }
+
+    if (switchAuth === "login") {
+      const isError = validate();
+      if (isError) return;
+
+      if (remember) {
+        localStorage.setItem("email", formData.email);
+      }
+
+      dispatch(loginUser(formData))
+    }
   };
 
   return (
@@ -114,37 +242,49 @@ export default function Login() {
                     </button>
                     <form id="login-form" onSubmit={handleSubmit} noValidate>
                       <div className="login-modal-right">
-                        {/* Tab panes */}
                         <div className="tab-content">
-                          <div
-                            className="tab-pane active"
-                            id="login"
-                            role="tabpanel"
-                          >
+                          <div className="tab-pane active" role="tabpanel">
                             <h5 className="heading-design-h5">
                               {switchAuth === "login"
                                 ? "Login to your account"
                                 : "Register Now!"}
                             </h5>
                             {switchAuth === "register" && (
-                              <fieldset className="form-group">
-                                <label>First Name</label>
-                                <input
-                                  type="text"
-                                  className="form-control"
-                                  name="firstName"
-                                  value={formData.firstName}
-                                  onChange={handleChange}
-                                />
-                                {formErrors.firstName.length > 0 && (
-                                  <span className="errorMessage">
-                                    {formErrors.firstName}
-                                  </span>
-                                )}
-                              </fieldset>
+                              <>
+                                <fieldset className="form-group">
+                                  <label>First Name</label>
+                                  <input
+                                    type="text"
+                                    className="form-control"
+                                    name="firstname"
+                                    value={formData.firstname}
+                                    onChange={handleChange}
+                                  />
+                                  {formErrors.firstname.length > 0 && (
+                                    <span className="errorMessage">
+                                      {formErrors.firstname}
+                                    </span>
+                                  )}
+                                </fieldset>
+                                <fieldset className="form-group">
+                                  <label>Last Name</label>
+                                  <input
+                                    type="text"
+                                    className="form-control"
+                                    name="lastname"
+                                    value={formData.lastname}
+                                    onChange={handleChange}
+                                  />
+                                  {formErrors.lastname.length > 0 && (
+                                    <span className="errorMessage">
+                                      {formErrors.lastname}
+                                    </span>
+                                  )}
+                                </fieldset>
+                              </>
                             )}
                             <fieldset className="form-group">
-                              <label>Enter Email/Mobile number</label>
+                              <label>Email</label>
                               <input
                                 type="email"
                                 className="form-control"
@@ -158,6 +298,23 @@ export default function Login() {
                                 </span>
                               )}
                             </fieldset>
+                            {switchAuth === "register" && (
+                              <fieldset className="form-group">
+                                <label>Mobile number</label>
+                                <input
+                                  type="number"
+                                  className="form-control"
+                                  name="phone"
+                                  value={formData.phone}
+                                  onChange={handleChange}
+                                />
+                                {formErrors.phone.length > 0 && (
+                                  <span className="errorMessage">
+                                    {formErrors.phone}
+                                  </span>
+                                )}
+                              </fieldset>
+                            )}
                             <fieldset className="form-group">
                               <label>Enter Password</label>
                               <input
@@ -173,6 +330,23 @@ export default function Login() {
                                 </span>
                               )}
                             </fieldset>
+                            {switchAuth === "register" && (
+                              <fieldset className="form-group">
+                                <label>Confirm Password</label>
+                                <input
+                                  type="password"
+                                  className="form-control"
+                                  name="confirm_password"
+                                  value={formData.confirm_password}
+                                  onChange={handleChange}
+                                />
+                                {formErrors.confirm_password.length > 0 && (
+                                  <span className="errorMessage">
+                                    {formErrors.confirm_password}
+                                  </span>
+                                )}
+                              </fieldset>
+                            )}
                             <fieldset className="form-group">
                               <button
                                 type="submit"
@@ -188,33 +362,44 @@ export default function Login() {
                                 <input
                                   type="checkbox"
                                   className="custom-control-input"
-                                  id="customCheck1"
+                                  id="remember"
+                                  onChange={({ target }) => {
+                                    setRemember(target.checked);
+                                  }}
                                 />
                                 <label
                                   className="custom-control-label"
-                                  htmlFor="customCheck1"
+                                  htmlFor="remember"
                                 >
                                   Remember me
                                 </label>
                               </div>
                             ) : (
                               <div className="custom-control custom-checkbox">
+                                {agreeError && (
+                                  <span className="errorMessage">
+                                    You nust agree to terms & conditions
+                                  </span>
+                                )}
+                                <br />
                                 <input
                                   type="checkbox"
                                   className="custom-control-input"
-                                  id="customCheck2"
+                                  id="agree"
+                                  onChange={({ target }) => {
+                                    setAgree(target.checked);
+                                  }}
                                 />
                                 <label
                                   className="custom-control-label"
-                                  htmlFor="customCheck2"
+                                  htmlFor="agree"
                                 >
-                                  I Agree with{" "}
+                                  I Agree with
                                   <a href="#">Term and Conditions</a>
                                 </label>
                               </div>
                             )}
                           </div>
-                          
                         </div>
                         <div className="clearfix" />
                         <div className="text-center login-footer-tab">
@@ -222,21 +407,21 @@ export default function Login() {
                             <li className="nav-item">
                               <button
                                 className="nav-link active"
-                                data-toggle="tab"
-                                role="tab"
-                                onClick={() => setSwitchAuth("login")}
+                                onClick={changeAuth}
+                                type="button"
+                                disabled={switchAuth === "login"}
                               >
-                                <i className="mdi mdi-lock" /> LOGIN
+                                <i className="mdi mdi-lock" /> Login
                               </button>
                             </li>
                             <li className="nav-item">
                               <button
                                 className="nav-link"
-                                data-toggle="tab"
-                                onClick={() => setSwitchAuth("register")}
-                                role="tab"
+                                onClick={changeAuth}
+                                disabled={switchAuth === "register"}
+                                type="button"
                               >
-                                <i className="mdi mdi-pencil" /> REGISTER
+                                <i className="mdi mdi-pencil" /> Register
                               </button>
                             </li>
                           </ul>

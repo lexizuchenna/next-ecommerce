@@ -1,14 +1,14 @@
 "use client";
 
-import {useState, useEffect} from "react";
+import { useState, useEffect } from "react";
 import { Paper } from "@mui/material";
 import { usePathname } from "next/navigation";
 import parse from "html-react-parser";
-// import Slider from "react-slick";
+import Slider from "react-slick";
 
-function SingleProduct({addToCart}) {
-    const [product, setProduct] = useState(null);
-      const pathname = usePathname()
+function SingleProduct({ addToCart }) {
+  const [product, setProduct] = useState(null);
+  const pathname = usePathname();
 
   const settings = {
     customPaging: function (i) {
@@ -32,9 +32,9 @@ function SingleProduct({addToCart}) {
     const fetchProductDetails = async () => {
       window.scrollTo(0, 0);
       let url = pathname.split("/");
-      var lastSegment = url.pop() || url.pop();
-    //   let list = await GetProductDetails.getProductById(lastSegment);
-    //   setProduct(list.data);
+      var lastSegment = url.pop()
+      //   let list = await GetProductDetails.getProductById(lastSegment);
+      //   setProduct(list.data);
     };
 
     fetchProductDetails();

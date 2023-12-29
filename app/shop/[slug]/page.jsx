@@ -15,15 +15,15 @@ function page() {
       window.scrollTo(0, 0);
       let url = window.location.href.split("/");
       var lastSegment = url.pop() || url.pop();
-      try {
-        let p = await GetProductDetails.getAllProductList(lastSegment);
-        if (p) {
-          setList(p.data.products);
-          setIsLoaded(true);
-        }
-      } catch (e) {
-        console.log(e)
-      }
+      // try {
+      //   let p = await GetProductDetails.getAllProductList(lastSegment);
+      //   if (p) {
+      //     setList(p.data.products);
+      //     setIsLoaded(true);
+      //   }
+      // } catch (e) {
+      //   console.log(e)
+      // }
     };
 
     fetchProducts();

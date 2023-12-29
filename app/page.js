@@ -1,18 +1,27 @@
+"use client";
 
+// import { SnackbarProvider } from "notistack";
+// import { SnackbarUtilsConfigurator } from "@utils/snackbar";
 
 import BannerCarousel from "@components/BannerCarousel";
+import Category from "@components/Category";
 import TopSection from "@components/home/TopSection";
 import BestOffers from "@components/home/best-offers/BestOffers";
-import TopStample from "@components/home/TopStample";
+import AllProducts from "@components/home/AllProducts";
+import Loader from "@components/Loader";
 
-export default function Home({ children }) {
+import "slick-carousel/slick/slick.css";
+import "slick-carousel/slick/slick-theme.css";
+
+export default function Home({}) {
   return (
     <main>
       <div className="wrapper">
         <BannerCarousel />
-        <TopSection />
+        <Category />
         <BestOffers />
-        <TopStample />
+        <TopSection />
+        <AllProducts />
       </div>
     </main>
   );

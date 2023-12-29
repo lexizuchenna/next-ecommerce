@@ -1,9 +1,6 @@
-// import Slider from "react-slick";
-// import "slick-carousel/slick/slick.css";
-// import "slick-carousel/slick/slick-theme.css";
+"use client";
 
-import Category from "./Category";
-
+import Slider from "react-slick";
 function BannerCarousel() {
   var settings = {
     dots: false,
@@ -16,22 +13,20 @@ function BannerCarousel() {
   };
 
   return (
-    <div>
-      <Category />
-      {/* <Slider {...settings}>
+    <div style={{ marginTop: "10px" }}>
+      <Slider {...settings}>
         <div className="owl-item">
-          <img src="img/banners/offer-1.jpg" alt="supermarket" />
+          <img src="/img/banners/offer-1.jpg" alt="supermarket" />
         </div>
         <div className="owl-item">
-          <img src="img/banners/offer-2.jpg" alt="supermarket" />
+          <img src="/img/banners/offer-2.jpg" alt="supermarket" />
         </div>
         <div className="owl-item">
-          <img src="img/banners/offer-3.jpg" alt="supermarket" />
+          <img src="/img/banners/offer-3.jpg" alt="supermarket" />
         </div>
-      </Slider> */}
-      Mag
+      </Slider>
     </div>
   );
 }
 
-export default BannerCarousel
+export default BannerCarousel;

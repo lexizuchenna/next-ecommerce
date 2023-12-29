@@ -3,7 +3,7 @@
 import Slider from "react-slick";
 // import "./index.css";
 
-function TopStample() {
+function AllProducts() {
   var settings = {
     dots: false,
     infinite: false,
@@ -68,4 +68,4 @@ function TopStample() {
   );
 }
 
-export default TopStample;
+export default AllProducts;
